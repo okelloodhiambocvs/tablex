@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TABLEX - Book Table</title>
+</head>
+<body>
+
+<h2>Book Table</h2>
+
+<form id="form">
+
+<input type="text" id="user" placeholder="Your Name"><br><br>
+<input type="number" id="table" placeholder="Table ID"><br><br>
+<input type="number" id="people" placeholder="People"><br><br>
+<input type="number" id="budget" placeholder="Budget"><br><br>
+
+<button type="submit">Book</button>
+
+</form>
+
+<div id="result"></div>
+
+<script>
+document.getElementById("form").addEventListener("submit", function(e){
+    e.preventDefault()
+
+    fetch("http://localhost:8080/book", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            UserName: document.getElementById("user").value,
+            TableID: parseInt(document.getElementById("table").value),
+            People: parseInt(document.getElementById("people").value),
+            Budget: parseInt(document.getElementById("budget").value)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerHTML =
+        "Status: " + data.Status
+    })
+})
+</script>
+
+</body>
+</html>
