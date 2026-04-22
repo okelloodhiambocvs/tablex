@@ -2,23 +2,38 @@ package api
 
 import "net/http"
 
-// RegisterRoutes sets up TABLEX endpoints
+// RegisterRoutes initializes all TABLEX API endpoints
 func RegisterRoutes() {
+
+	// health check
+	http.HandleFunc("/health", healthHandler)
+
+	// clubs list
 	http.HandleFunc("/clubs", GetClubsHandler)
-	http.HandleFunc("/clubs/", func(w http.ResponseWriter, r *http.Request) {
 
-		// /clubs/{id}/tables
-		if len(r.URL.Path) > 0 && contains(r.URL.Path, "/tables") {
-			GetClubTablesHandler(w, r)
-			return
-		}
+	// booking endpoint
+	http.HandleFunc("/book", BookTableHandler)
 
-		// /clubs/{id}
-		GetClubHandler(w, r)
-	})
+	// dynamic club routes (IMPORTANT)
+	http.HandleFunc("/clubs/", clubRouter)
 }
 
-// simple helper
+// clubRouter handles all /clubs/* routes
+func clubRouter(w http.ResponseWriter, r *http.Request) {
+
+	path := r.URL.Path
+
+	// /clubs/{id}/tables
+	if len(path) > len("/clubs/") && contains(path, "/tables") {
+		GetClubTablesHandler(w, r)
+		return
+	}
+
+	// /clubs/{id}
+	GetClubHandler(w, r)
+}
+
+// simple helper to check substring
 func contains(path string, sub string) bool {
 	return len(path) >= len(sub) && (path[len(path)-len(sub):] == sub)
 }

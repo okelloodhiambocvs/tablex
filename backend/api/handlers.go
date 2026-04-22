@@ -4,43 +4,39 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 
-	"tablex/backend/service"
 	"tablex/backend/core"
+	"tablex/backend/service"
+	"tablex/backend/store"
 )
 
-// Get all clubs
-func GetClubsHandler(w http.ResponseWriter, r *http.Request) {
-	data := service.GetAllClubs()
+// BookTableHandler handles booking requests
+func BookTableHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
-}
-
-// Get single club
-func GetClubHandler(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/clubs/")
-	id, _ := strconv.Atoi(idStr)
-
-	data := service.GetClubByID(id)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
-}
-
-// Get tables for a club
-func GetClubTablesHandler(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/clubs/")
-	parts := strings.Split(idStr, "/")
-
-	clubID, _ := strconv.Atoi(parts[0])
-
-	club := service.GetClubByID(clubID)
-	if club == nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
+	var req struct {
+		UserName string
+		TableID  int
+		People   int
+		Budget   int
 	}
 
-	json.NewEncoder(w).Encode(club.(core.Club).Tables)
+	json.NewDecoder(r.Body).Decode(&req)
+
+	// find table
+	clubs := store.GetClubs()
+
+	var selectedTable core.Table
+
+	for _, c := range clubs {
+		for _, t := range c.Tables {
+			if t.ID == req.TableID {
+				selectedTable = t
+			}
+		}
+	}
+
+	booking := service.BookTable(req.UserName, selectedTable, req.People, req.Budget)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(booking)
 }
