@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TABLEX - Club</title>
+</head>
+<body>
+
+<h2>Club Tables</h2>
+
+<div id="tables"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search)
+const id = params.get("id")
+
+fetch("http://localhost:8080/clubs/" + id + "/tables")
+.then(res => res.json())
+.then(data => {
+    let html = ""
+
+    data.forEach(table => {
+        html += "<div>"
+        html += "<p>Type: " + table.Type + "</p>"
+        html += "<p>Price: " + table.Price + "</p>"
+        html += "<p>Available: " + table.Available + "</p>"
+        html += "</div><hr>"
+    })
+
+    document.getElementById("tables").innerHTML = html
+})
+</script>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TABLEX - Clubs</title>
+</head>
+<body>
+
+<h2>Available Clubs</h2>
+
+<div id="clubs"></div>
+
+<script>
+fetch("http://localhost:8080/clubs")
+.then(res => res.json())
+.then(data => {
+    let html = ""
+
+    data.forEach(club => {
+        html += "<div>"
+        html += "<h3>" + club.Name + "</h3>"
+        html += "<p>" + club.Location + "</p>"
+        html += "<a href='club.html?id=" + club.ID + "'>View Tables</a>"
+        html += "</div><hr>"
+    })
+
+    document.getElementById("clubs").innerHTML = html
+})
+</script>
+
+</body>
+</html>
