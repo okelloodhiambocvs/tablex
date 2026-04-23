@@ -5,12 +5,12 @@ import (
 	"tablex/backend/store"
 )
 
-// BookTable handles booking logic
+// BookTable handles booking logic with split suggestion
 func BookTable(user string, table core.Table, people int, budget int) core.Booking {
 
 	status := "CONFIRMED"
 
-	// budget check
+	// if budget is low, mark pending (possible split)
 	if budget < table.Price {
 		status = "PENDING"
 	}
