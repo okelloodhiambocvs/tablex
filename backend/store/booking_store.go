@@ -18,3 +18,13 @@ func SaveBooking(b core.Booking) core.Booking {
 func GetBookings() []core.Booking {
 	return bookings
 }
+
+// UpdateBookingStatus updates booking status by ID
+func UpdateBookingStatus(id int, status string) {
+
+	for i := range bookings {
+		if bookings[i].ID == id {
+			bookings[i].Status = status
+		}
+	}
+}
