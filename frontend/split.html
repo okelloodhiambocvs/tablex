@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TABLEX - Split Bill</title>
+</head>
+<body>
+
+<h2>Split Bill Request</h2>
+
+<form id="splitForm">
+
+<input type="number" id="table" placeholder="Table ID"><br><br>
+<input type="text" id="userA" placeholder="User A"><br><br>
+<input type="text" id="userB" placeholder="User B"><br><br>
+<input type="number" id="price" placeholder="Total Price"><br><br>
+
+<button type="submit">Create Split</button>
+
+</form>
+
+<div id="result"></div>
+
+<script>
+document.getElementById("splitForm").addEventListener("submit", function(e){
+    e.preventDefault()
+
+    fetch("http://localhost:8080/split", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            TableID: parseInt(document.getElementById("table").value),
+            UserA: document.getElementById("userA").value,
+            UserB: document.getElementById("userB").value,
+            Price: parseInt(document.getElementById("price").value)
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerHTML =
+        "Split created: " + data.AmountA + " / " + data.AmountB
+    })
+})
+</script>
+
+</body>
+</html>
