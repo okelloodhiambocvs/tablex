@@ -18,9 +18,18 @@
 
 </form>
 
-<div id="result"></div>
+<br>
+
+<button onclick="pay()">Simulate Payment</button>
+
+<h3 id="result"></h3>
 
 <script>
+
+// store booking ID globally
+let bookingID = null
+
+// handle booking
 document.getElementById("form").addEventListener("submit", function(e){
     e.preventDefault()
 
@@ -36,10 +45,38 @@ document.getElementById("form").addEventListener("submit", function(e){
     })
     .then(res => res.json())
     .then(data => {
+
+        // store booking ID from backend
+        bookingID = data.ID
+
         document.getElementById("result").innerHTML =
-        "Status: " + data.Status
+        "Booking created. Status: " + data.Status + " | Booking ID: " + bookingID
     })
 })
+
+// handle payment
+function pay() {
+
+    if (bookingID === null) {
+        document.getElementById("result").innerHTML = "Please book first"
+        return
+    }
+
+    fetch("http://localhost:8080/pay", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            TableID: parseInt(document.getElementById("table").value),
+            BookingID: bookingID
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerHTML =
+        "Payment success: " + data.success + " | Booking Confirmed"
+    })
+}
+
 </script>
 
 </body>
