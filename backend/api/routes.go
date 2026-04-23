@@ -1,15 +1,9 @@
 package api
 
-import (
-	"net/http"
-	"strings"
-)
+import "net/http"
 
-// RegisterRoutes sets up all API endpoints
+// RegisterRoutes sets up all TABLEX endpoints
 func RegisterRoutes() {
-
-	// health check route
-	http.HandleFunc("/health", HealthHandler)
 
 	// get all clubs
 	http.HandleFunc("/clubs", GetClubsHandler)
@@ -17,10 +11,8 @@ func RegisterRoutes() {
 	// dynamic club routes
 	http.HandleFunc("/clubs/", func(w http.ResponseWriter, r *http.Request) {
 
-		path := r.URL.Path
-
 		// check if request is for tables
-		if strings.Contains(path, "/tables") {
+		if contains(r.URL.Path, "/tables") {
 			GetClubTablesHandler(w, r)
 			return
 		}
@@ -29,9 +21,17 @@ func RegisterRoutes() {
 		GetClubHandler(w, r)
 	})
 
-	// booking route
+	// booking endpoint
 	http.HandleFunc("/book", BookTableHandler)
 
-	// split bill route
+	// split bill endpoint
 	http.HandleFunc("/split", SplitRequestHandler)
+
+	// payment endpoint (THIS IS STEP 6.4)
+	http.HandleFunc("/pay", PaymentHandler)
+}
+
+// simple helper function
+func contains(path string, sub string) bool {
+	return len(path) >= len(sub) && path[len(path)-len(sub):] == sub
 }

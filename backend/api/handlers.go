@@ -65,3 +65,56 @@ func SplitRequestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(split)
 }
+
+// PaymentHandler simulates payment and locks the table
+func PaymentHandler(w http.ResponseWriter, r *http.Request) {
+
+	// only allow POST
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	// request body structure
+	var req struct {
+	TableID   int
+	BookingID int
+}
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// validate table exists
+	table, found := store.GetTableByID(req.TableID)
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "table not found",
+		})
+		return
+	}
+
+	// check availability
+	if !table.Available {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "table already booked",
+		})
+		return
+	}
+
+	// simulate payment and lock table
+	success := service.SimulatePayment(req.TableID, req.BookingID)
+
+	response := map[string]interface{}{
+		"success": success,
+		"message": "payment successful, table booked",
+		"tableID": req.TableID,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
