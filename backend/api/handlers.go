@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"tablex/backend/core"
 	"tablex/backend/service"
@@ -39,4 +38,30 @@ func BookTableHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(booking)
+}
+
+// SplitRequestHandler handles split bill creation
+func SplitRequestHandler(w http.ResponseWriter, r *http.Request) {
+
+	var req struct {
+		TableID int
+		UserA   string
+		UserB   string
+		Price   int
+	}
+
+	// decode incoming request
+	json.NewDecoder(r.Body).Decode(&req)
+
+	// call service layer
+	split := service.CreateSplitSuggestion(
+		req.TableID,
+		req.UserA,
+		req.UserB,
+		req.Price,
+	)
+
+	// return response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(split)
 }
